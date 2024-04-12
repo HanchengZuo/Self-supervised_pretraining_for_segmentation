@@ -1,71 +1,32 @@
 import os
 import torch
 import numpy as np
-import matplotlib.pyplot as plt
-
-
-def seg_visualize(data: tuple, color_background=[255, 255, 255], color_edge=[255, 0, 0], transparency=0.75):
-    '''Visualize the image with the egde
-
-    Args:
-      data: (image,trimap) where images is (channels, width, height) and trimap is (width, height)
-      color_background: RGB vales to cover the backgroung, i.e. trimap == 2
-      color_edge: RGB vales to show the edge with transparency, i.e. trimap == 3
-      transparency: the transparency factor for the edge
-    '''
-
-    image = data[0].numpy()
-    trimap = data[1].numpy()
-
-    # convert to image with (width,height,channels) as shape and unit8 0~255 as values
-    image = (image * 255).astype(np.uint8)
-    image = image.transpose((1, 2, 0))
-
-    image_original = image.copy()
-
-    # show background
-    image[trimap == 2] = color_background
-
-    # show edge
-    blend = np.array(color_edge, dtype=np.uint8)
-    mask = trimap == 3
-    image[mask] = (transparency * image[mask] +
-                   (1 - transparency) * blend).astype(np.uint8)
-
-    # show the original image and the segmentated one
-    plt.subplot(1, 2, 1)
-    plt.imshow(image_original)
-    plt.axis('off')
-    plt.title('Original Image')
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(image)
-    plt.axis('off')
-    plt.title('Segmentated Image')
-
-    plt.show()
+from PIL import Image, ImageDraw, ImageFont
 
 
 def create_segmentation_visual(image, mask, color_background, color_edge, transparency):
-    segmentated_image = image.copy()
-    segmentated_image[mask == 2] = color_background  # Apply background color
+    image[mask == 2] = color_background
     edge_mask = mask == 3
     blend_color = np.array(color_edge, dtype=np.uint8)
-    segmentated_image[edge_mask] = (
-        transparency * segmentated_image[edge_mask] + (1 - transparency) * blend_color).astype(np.uint8)
-    return segmentated_image
+    image[edge_mask] = (transparency * image[edge_mask] +
+                        (1 - transparency) * blend_color).astype(np.uint8)
+    return Image.fromarray(image)
 
 
 def visualize_segmentation_comparison(images, true_masks, pred_masks, num_images,
-                                      color_background=[255, 255, 255],
-                                      color_edge=[255, 0, 0],
+                                      color_background=(255, 255, 255),
+                                      color_edge=(255, 0, 0),
                                       transparency=0.75,
                                       subtitle="Segmentation Comparison",
                                       save_path=None, dpi=300):
-    # Adjust subplot grid for multiple images
-    fig, axs = plt.subplots(num_images, 3, figsize=(15, 5 * num_images))
-    if num_images == 1:
-        axs = [axs]  # Ensure axs is iterable for a single image case
+    try:
+        # Smaller font size, adjust the path as needed.
+        font = ImageFont.truetype(
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", size=14)
+        subtitlefont = ImageFont.truetype(
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size=18)
+    except IOError:
+        font = ImageFont.load_default()
 
     for i in range(num_images):
         image_np = images[i].cpu().detach().numpy().transpose(1, 2, 0)
@@ -73,34 +34,41 @@ def visualize_segmentation_comparison(images, true_masks, pred_masks, num_images
         true_mask_np = true_masks[i].cpu().detach().numpy()
         pred_mask_np = pred_masks[i].cpu().detach().numpy()
 
-        true_segmentated_image = create_segmentation_visual(
-            image_np, true_mask_np, color_background, color_edge, transparency)
-        pred_segmentated_image = create_segmentation_visual(
-            image_np, pred_mask_np, color_background, color_edge, transparency)
+        pil_orig = Image.fromarray(image_np)
+        pil_true = create_segmentation_visual(
+            image_np.copy(), true_mask_np, color_background, color_edge, transparency)
+        pil_pred = create_segmentation_visual(
+            image_np.copy(), pred_mask_np, color_background, color_edge, transparency)
 
-        axs[i][0].imshow(image_np)
-        axs[i][0].set_title("Original Image", fontsize=16)
-        axs[i][1].imshow(true_segmentated_image)
-        axs[i][1].set_title("True Segmentated Image", fontsize=16)
-        axs[i][2].imshow(pred_segmentated_image)
-        axs[i][2].set_title("Predicted Segmentated Image", fontsize=16)
+        # Create a new image to place the three images side by side
+        total_width = pil_orig.width * 3
+        max_height = pil_orig.height + 60  # More height for the title and subtitle
+        combined_image = Image.new(
+            'RGB', (total_width, max_height), (255, 255, 255))
 
-        for ax in axs[i]:
-            ax.axis('off')
+        # Paste each image
+        combined_image.paste(pil_orig, (0, 60))
+        combined_image.paste(pil_true, (pil_orig.width, 60))
+        combined_image.paste(pil_pred, (pil_orig.width * 2, 60))
 
-    plt.suptitle(subtitle, fontsize=22, fontweight='bold',
-                 y=1.01)  # Adjust y for better spacing
-    plt.tight_layout()
-    plt.subplots_adjust(wspace=0.1)
+        # Draw the titles
+        draw = ImageDraw.Draw(combined_image)
+        draw.text((60, 40), "Original Image", font=font, fill="black")
+        draw.text((pil_orig.width + 30, 40),
+                  "True Segmentated Image", font=font, fill="black")
+        draw.text((pil_orig.width * 2 + 10, 40),
+                  "Predicted Segmentated Image", font=font, fill="black")
+        draw.text((total_width / 2 - 160, 10), subtitle,
+                  font=subtitlefont, fill="black")  # Centralized subtitle
 
-    if save_path:
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)  # Create the directory if it does not exist
-        filename = subtitle.replace(" ", "_") + ".png"
-        save_path = os.path.join(save_path, filename)
-        # Save with high resolution
-        plt.savefig(save_path, bbox_inches='tight', dpi=dpi)
-    plt.show()
+        combined_image.show()
+
+        if save_path:
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            filename = subtitle.replace(" ", "_") + f"_{i}.png"
+            save_path_file = os.path.join(save_path, filename)
+            combined_image.save(save_path_file, 'PNG')
 
 
 def test_visualization(model, loader, mask, device, subtitle, save_path, num_images=3):

@@ -2,7 +2,6 @@ import os
 import random
 import cv2
 import glob
-from tqdm import tqdm
 import imgaug.augmenters as iaa
 
 
@@ -52,8 +51,9 @@ class DataAugmentation:
         # Fetch image paths and select a specified number for processing
         img_paths = glob.glob(os.path.join(self.original_path, '*.*'))
         selected_paths = img_paths[:self.num_images]  # 取前num_images张图片
+        print("Data Augmentation in progress...")
 
-        for img_path in tqdm(selected_paths, total=len(selected_paths)):
+        for img_path in selected_paths:
             # Read the image
             img = cv2.imread(img_path, 1)
             # Randomly select an augmentation function
@@ -77,6 +77,8 @@ class DataAugmentation:
             right_save_p = os.path.join(
                 self.augmented_path, f'{original_filename}_right.jpg')
             cv2.imwrite(right_save_p, right_img)
+
+        print("Data Augmentation Done!")
 
     def _augment_single_image(self, img, h, w, is_right=False):
         """
