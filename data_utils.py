@@ -12,12 +12,13 @@ class ContDataset(Dataset):
     Prepare dataset for contrastive learning
 
     Args:
-      folder_path (string): Path to the folder with images.
-      transform (callable, optional): Optional transform to be applied
-          on a sample.
+      folder_path (string): Path to the folder with images
+      folder_path1 (string): Path to the folder with augmentated images
+      transform (callable, optional): Optional transform to be applied 
+        on a sample.
     """
 
-    def __init__(self, folder_path, folder_path1, transform=None):
+    def __init__(self, folder_path:int, folder_path1:int, transform=None):
         self.folder_path = folder_path
         self.folder_path1 = folder_path1
         self.image_filenames = [f for f in sorted(os.listdir(
@@ -36,10 +37,10 @@ class ContDataset(Dataset):
             idx = idx.tolist()
 
         img_name_0 = os.path.join(
-            self.folder_path1, self.image_filenames1[idx])
-        img_name_1 = os.path.join(self.folder_path, self.image_filenames[idx])
+            self.folder_path1, self.image_filenames1[idx]) # original image 
+        img_name_1 = os.path.join(self.folder_path, self.image_filenames[idx]) # the corresponding augmentated image, i.e., positive
         img_name_2 = os.path.join(
-            self.folder_path, self.image_filenames[idx + 1])
+            self.folder_path, self.image_filenames[idx + 1]) # anothor augmentated image, i.e. negative
 
         image_0 = Image.open(img_name_0)
         image_1 = Image.open(img_name_1)
@@ -59,12 +60,12 @@ class MockContDataset(Dataset):
 
     Args:
       num_samples (int): Number of samples in the dataset.
-      image_size (tuple): Size of the generated images (height, width).
+      image_size (tuple[int]): Size of the generated images (height, width).
       transform (callable, optional): Optional transform to be applied
           on a sample.
     """
 
-    def __init__(self, num_samples, image_size, transform=None):
+    def __init__(self, num_samples:int, image_size:tuple, transform=None):
         self.num_samples = num_samples
         self.image_size = image_size
         self.transform = transform
@@ -74,7 +75,7 @@ class MockContDataset(Dataset):
         # There is one less pair than the number of images
         return self.num_samples - 1
 
-    def __getitem__(self, idx):
+    def __getitem__(self):
         # Generate random images
         image_0 = Image.fromarray(np.random.randint(
             0, 255, (self.image_size[0], self.image_size[1], 3), dtype=np.uint8))
@@ -134,8 +135,7 @@ def check_image_shapes(folder_path):
         if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
             image_path = os.path.join(folder_path, filename)
             with Image.open(image_path) as img:
-                # Get image dimensions and channels (mode)
-                width, height = img.size
+                # Get image channels (mode)
                 mode = img.mode
 
                 if mode not in modes:

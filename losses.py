@@ -8,7 +8,7 @@ class ContrastiveLoss(nn.Module):
     Contrastive learing loss
 
     Args:
-        margin: margin for contrastive loss
+        margin (float): margin for contrastive loss
     """
 
     def __init__(self, margin=1.0):
@@ -36,12 +36,12 @@ def dice_loss(pred: torch.Tensor, target: torch.Tensor, smooth=1.0):
     Calculate dice loss
 
     Args:
-        pred: output of model, (batch_size, num_class, width, height)
-        target: true prediction for eac pixel, (batch_size, width, height)
-        smooth: smooth parameter for dice loss
+        pred (Tensor): output of model, (batch_size, num_class, width, height)
+        target (Tensor): true prediction for eac pixel, (batch_size, width, height)
+        smooth (float): smooth parameter for dice loss
 
     Return:
-        dice_loss: dice loss
+        dice_loss (float): dice loss
     '''
 
     _, num_classes, _, _ = pred.shape

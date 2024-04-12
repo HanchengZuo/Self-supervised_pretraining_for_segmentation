@@ -2,20 +2,19 @@ import os
 import random
 import cv2
 import glob
+import shutil
 import imgaug.augmenters as iaa
 
-
 class DataAugmentation:
-    """
-    Initialize the data augmentation class.
+    """Initialize the data augmentation class.
 
-    Parameters:
+    Args:
         original_path (str): The path to the directory containing the original images.
         augmented_path (str): The path to the directory where augmented images will be saved.
         num_images (int): Number of images to be processed for augmentation.
     """
 
-    def __init__(self, original_path, augmented_path, num_images):
+    def __init__(self, original_path:str, augmented_path:str, num_images:int):
         self.original_path = original_path
         self.augmented_path = augmented_path
         self.num_images = num_images
@@ -30,10 +29,9 @@ class DataAugmentation:
                      iaa.Dropout(p=(0, 0.2)), iaa.pillike.Autocontrast(),
                      iaa.PadToFixedSize(width=100, height=100)]
 
-    def _clear_directory(self, path):
-        """
-        Clears all files in the specified directory.
-        """
+    def _clear_directory(self, path:str):
+        """Clears all files in the specified directory."""
+
         for filename in os.listdir(path):
             file_path = os.path.join(path, filename)
             try:
@@ -45,9 +43,8 @@ class DataAugmentation:
                 print(f'Failed to delete {file_path}. Reason: {e}')
 
     def augment_images(self):
-        """
-        Perform data augmentation on the specified number of images.
-        """
+        """Perform data augmentation on the specified number of images."""
+
         # Fetch image paths and select a specified number for processing
         img_paths = glob.glob(os.path.join(self.original_path, '*.*'))
         selected_paths = img_paths[:self.num_images]  # 取前num_images张图片
@@ -81,10 +78,9 @@ class DataAugmentation:
         print("Data Augmentation Done!")
 
     def _augment_single_image(self, img, h, w, is_right=False):
-        """
-        Apply augmentation to a single image by adding a mask block.
+        """Apply augmentation to a single image by adding a mask block.
 
-        Parameters:
+        Args:
             img (array): The image to be augmented.
             h (int): Height of the image.
             w (int): Width of the image.
@@ -93,6 +89,7 @@ class DataAugmentation:
         Returns:
             array: The augmented image.
         """
+
         # Make a copy of the image to avoid modifying the original
         augmented_img = img.copy()
         # Get random block parameters
@@ -106,16 +103,16 @@ class DataAugmentation:
         return augmented_img
 
     def _random_block_params(self, h, w):
-        """
-        Generate random parameters for the block to be added to the image.
+        """Generate random parameters for the block to be added to the image.
 
-        Parameters:
+        Args:
             h (int): Height of the image.
             w (int): Width of the image.
 
         Returns:
-            tuple: Parameters for the block (bh, bw, size1, size2)
+            bh, bw, size1, size2: args for the block (bh, bw, size1, size2)
         """
+
         bh = random.randint(5, h // 3)
         bw = random.randint(5, w // 3)
         size1 = random.randint(100, 130)

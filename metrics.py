@@ -1,4 +1,6 @@
 import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
 
 
 def pixel_wise_accuracy(pred: torch.Tensor, target: torch.Tensor) -> float:
@@ -59,20 +61,25 @@ def iou_score(pred: torch.Tensor, target: torch.Tensor, smooth=1e-6):
     return iou.mean().item()
 
 
-def evaluate_model_performance(model, dataloader, device, mask, model_description):
+def evaluate_model_performance(model:nn.Module, 
+                               dataloader:DataLoader, 
+                               device:torch.device, 
+                               mask:torch.Tensor, 
+                               model_description:str):
     """
     Evaluate the model on given dataloader to compute accuracy and IoU score.
 
-    Parameters:
-    - model: The PyTorch model to evaluate.
-    - dataloader: The DataLoader containing the test dataset.
-    - device: The device on which the computations are performed.
-    - mask: The mask tensor applied to inputs if necessary.
-    - model_description: Description of the model phase for output clarity.
+    Args:
+        model (nn.Moudle): The PyTorch model to evaluate.
+        dataloader (DateLoader): The DataLoader containing the test dataset.
+        device (torch.device): The device on which the computations are performed.
+        mask (Tensor): The mask tensor applied to inputs if necessary.
+        model_description (str): Description of the model phase for output clarity.
 
     Returns:
-    - None: Prints the accuracy and IoU directly.
+        None: Prints the accuracy and IoU directly.
     """
+
     model.eval()  # Set the model to evaluation mode
     acc = 0
     iou_total = 0

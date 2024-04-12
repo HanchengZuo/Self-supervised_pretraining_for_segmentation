@@ -77,7 +77,7 @@ class SelfSuperviseHeadNonelinear(nn.Module):
 
 class SegmentationHead(nn.Module):
     """
-    segmentation head
+    Segmentation head
 
     Args:
         num_class (int): number of classes
@@ -121,11 +121,11 @@ class BaseSelfSupervise(nn.Module):
         word_dim (int): word vector dimension in ViT
         image_size (tuple[int]): (width, height) of imput images
         base_model_weights (None|'pretrained'|str|dict), can be:
-        'pretrained': load the pretrained vit weights automatically
-        base model path (str): load the weights from model path
-        base model class (BaseModel): integrate the base model
-        base model weights (dict): load the weight from this dict
-        None: do not load pre-trained weights
+            'pretrained': load the pretrained vit weights automatically
+            base model path (str): load the weights from model path
+            base model class (BaseModel): integrate the base model
+            base model weights (dict): load the weight from this dict
+            None: do not load pre-trained weights
     """
 
     def __init__(self, word_dim=768, image_size=(224, 224), base_model_weights=None):
@@ -145,7 +145,7 @@ class BaseSelfSupervise(nn.Module):
             elif base_model_weights is not None:
                 raise ValueError('unknown base_model_weights')
 
-        self.heads = SelfSuperviseHead()
+        self.heads = SelfSuperviseHead(dim=word_dim, image_size=image_size)
 
     def forward(self, x):
 
@@ -171,7 +171,9 @@ class BaseSegmentation(nn.Module):
             None: Do not load pre-trained weights.
     """
 
-    def __init__(self, num_classes=3, word_dim=768, image_size=(224, 224), c1=64, c2=32, c3=16, base_model_weights=None):
+    def __init__(self, num_classes=3, word_dim=768, image_size=(224, 224), 
+                 c1=64, c2=32, c3=16, 
+                 base_model_weights=None):
         super().__init__()
 
         # Initialize the base model
@@ -213,7 +215,9 @@ class ViTSegmentation(nn.Module):
         pretrained: bool, true indicates pre-trained weights for vit_b_16
     """
 
-    def __init__(self, num_classes=3, word_dim=768, image_size=(224, 224), c1=64, c2=32, c3=16, pretrained=True):
+    def __init__(self, num_classes=3, word_dim=768, image_size=(224, 224), 
+                 c1=64, c2=32, c3=16, 
+                 pretrained=True):
         super().__init__()
 
         # save attribute
@@ -257,12 +261,12 @@ class Decoder(nn.Module):
     MLP decoder for segmentation task
 
     Args:
-        latent_dim: embedding vector dimension in ViT
-        hidden_dim: hidden non-linear dimension
-        output_dim: task output dimension
+        latent_dim (int): embedding vector dimension in ViT
+        hidden_dim (int): hidden non-linear dimension
+        output_dim (int): task output dimension
     """
 
-    def __init__(self, latent_dim, hidden_dim, output_dim):
+    def __init__(self, latent_dim:int, hidden_dim:int, output_dim:int):
         super(Decoder, self).__init__()
 
         self.decoder = nn.Sequential(
@@ -280,11 +284,11 @@ class MaskedAutoEncoder(nn.Module):
     Masked autoencoder for segmentation task
 
     Args:
-        encoder: embedding vector encoder
-        decoder: task output decoder
+        encoder (nn.Moudule): embedding vector encoder
+        decoder (nn.Moudule): task output decoder
     """
 
-    def __init__(self, encoder, decoder):
+    def __init__(self, encoder:nn.Module, decoder:nn.Module):
         super(MaskedAutoEncoder, self).__init__()
         self.encoder = encoder
         self.decoder = decoder
