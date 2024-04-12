@@ -127,7 +127,7 @@ def test_visualization(model:nn.Module, loader:DataLoader, mask:torch.Tensor,
             images, true_masks = images.to(device), true_masks.to(device)
             predictions = model(images, mask)
             predictions = predictions.reshape(-1, 3, 224, 224)
-            pred_masks = predictions.argmax(dim=1)
+            pred_masks = predictions.argmax(dim=1) + 1
             visualize_segmentation_comparison(
                 images, true_masks, pred_masks, num_images, subtitle=subtitle, save_path=save_path)
             break  # Remove or modify this line to process more batches
