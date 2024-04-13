@@ -34,13 +34,13 @@ dataset_config = {
 
 pre_train = {
     'num_samples': 10000,  # Size of the pre-trained dataset
-    'epochs': 10,  # Total epochs for pre-training
+    'epochs': 5,  # Total epochs for pre-training
     'learning_rate': 1e-3  # Learning rate in the pre-training phase
 }
 
 # Split configurations for fine-tuning
 fine_tune_dataset_split = {
-    'use_data_ratio': 1.0,  # Fine-tuning the use ratio of the dataset
+    'use_data_ratio': 0.2,  # Fine-tuning the use ratio of the dataset
     'train_ratio': 0.8,  # Fine-tuning the scale of the training dataset
     'test_ratio': 0.2,  # Fine-tuning the scale of the test dataset
 }
@@ -50,7 +50,7 @@ fine_tune_training_config = {
     'batch_size': 64,
     'shuffle_train': True,
     'shuffle_test': False,
-    'training_epochs': 20,  # Fine-tuning phase training epochs
+    'training_epochs': 5,  # Fine-tuning phase training epochs
     'learning_rate': 1e-4  # Learning rate in the pre-training phase
 }
 
@@ -196,7 +196,7 @@ print("Starting the fine-tuning process with the pre-trained model...")
 for epoch in range(fine_tune_training_config['training_epochs']):
     start_time = time.time()
     fine_model_with_pre.train()  # Ensure the model is in training mode
-    for x, y in train_loader:
+    for i, (x, y) in enumerate(train_loader):
         inputs, targets = x.to(device), y.to(device)
         optimizer.zero_grad()
 
@@ -213,12 +213,15 @@ for epoch in range(fine_tune_training_config['training_epochs']):
             # Backpropagation
             loss.backward()
             optimizer.step()
+            
+            # Print batch loss
+            print(f'Epoch {epoch+1}, Batch {i+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}')
 
     end_time = time.time()
     epoch_duration = end_time - start_time
 
     # Print epoch results
-    print(f'Epoch {epoch+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}, Duration: {epoch_duration:.2f} seconds')
+    print(f'Epoch {epoch+1} completed, Duration: {epoch_duration:.2f} seconds------------------------------------')
 
 print("Fine-tuning completed.")
 
@@ -254,7 +257,7 @@ print("Starting training of the baseline model without pre-trained weights...")
 for epoch in range(fine_tune_training_config['training_epochs']):
     start_time = time.time()
     fine_model_without_pre.train()  # Ensure the model is in training mode
-    for x, y in train_loader:
+    for i, (x, y) in enumerate(train_loader):
         inputs, targets = x.to("cuda"), y.to("cuda")
         optimizer.zero_grad()
 
@@ -271,12 +274,15 @@ for epoch in range(fine_tune_training_config['training_epochs']):
             # Backpropagation
             loss.backward()
             optimizer.step()
+            
+            # Print batch loss
+            print(f'Epoch {epoch+1}, Batch {i+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}')
 
     end_time = time.time()
     epoch_duration = end_time - start_time
 
     # Print training progress
-    print(f'Epoch {epoch+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}, Duration: {epoch_duration:.2f} seconds')
+    print(f'Epoch {epoch+1} completed, Duration: {epoch_duration:.2f} seconds------------------------------------')
 
 print("Baseline model without pre-trained weights training completed.")
 
