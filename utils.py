@@ -6,9 +6,9 @@ from torch.utils.data import DataLoader
 from PIL import Image, ImageDraw, ImageFont
 
 
-def create_segmentation_visual(image:np.ndarray, mask:np.ndarray, 
-                               color_background:tuple, color_edge:tuple, 
-                               transparency:float):
+def create_segmentation_visual(image: np.ndarray, mask: np.ndarray,
+                               color_background: tuple, color_edge: tuple,
+                               transparency: float):
     """Create visulization image for segmentation
 
     Args:
@@ -32,17 +32,17 @@ def create_segmentation_visual(image:np.ndarray, mask:np.ndarray,
     return image
 
 
-def visualize_segmentation_comparison(images:torch.Tensor, 
-                                      true_masks:torch.Tensor, 
-                                      pred_masks:torch.Tensor, 
-                                      num_images:int,
+def visualize_segmentation_comparison(images: torch.Tensor,
+                                      true_masks: torch.Tensor,
+                                      pred_masks: torch.Tensor,
+                                      num_images: int,
                                       color_background=(255, 255, 255),
                                       color_edge=(255, 0, 0),
                                       transparency=0.75,
                                       subtitle="Segmentation Comparison",
                                       save_path=None):
     """Visualize segmentation results
-    
+
     Args:
         images (Tensor): the input images
         true_masks (Tensor): true lables, i.e. true trimaps
@@ -54,15 +54,18 @@ def visualize_segmentation_comparison(images:torch.Tensor,
         subtitle (str): subtitle the the segmentation visualization
         save_path (str|None): path to save the visualizetion results. None indicates not saving the resutls
     """
-    
+
     try:
         # Smaller font size, adjust the path as needed.
         font = ImageFont.truetype(
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", size=14)
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", size=15)
         subtitlefont = ImageFont.truetype(
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size=18)
     except IOError:
         font = ImageFont.load_default()
+
+    # Define the gap between images
+    gap = 10
 
     for i in range(num_images):
         image_np = images[i].cpu().detach().numpy().transpose(1, 2, 0)
@@ -76,26 +79,39 @@ def visualize_segmentation_comparison(images:torch.Tensor,
         pil_pred = create_segmentation_visual(
             image_np.copy(), pred_mask_np, color_background, color_edge, transparency)
 
-        # Create a new image to place the three images side by side
-        total_width = pil_orig.width * 3
-        max_height = pil_orig.height + 60  # More height for the title and subtitle
-        combined_image = Image.new(
-            'RGB', (total_width, max_height), (255, 255, 255))
+        # Calculate the total width and the offset of each drawing
+        base_image_width = pil_orig.width * 3 + 2 * gap
+        max_height = pil_orig.height + 60
 
-        # Paste each image
+        dummy_image = Image.new('RGB', (1, 1))
+        dummy_draw = ImageDraw.Draw(dummy_image)
+        subtitle_bbox = dummy_draw.textbbox(
+            (0, 0), subtitle, font=subtitlefont)
+        subtitle_width = subtitle_bbox[2] - subtitle_bbox[0]
+
+        # Create image containers
+        combined_image = Image.new(
+            'RGB', (base_image_width, max_height), (255, 255, 255))
+        # The first image does not require a gap
         combined_image.paste(pil_orig, (0, 60))
-        combined_image.paste(pil_true, (pil_orig.width, 60))
-        combined_image.paste(pil_pred, (pil_orig.width * 2, 60))
+        # The second picture plus a gap
+        combined_image.paste(pil_true, (pil_orig.width + gap, 60))
+        # Third image plus two gaps
+        combined_image.paste(pil_pred, (2 * pil_orig.width + 2 * gap, 60))
 
         # Draw the titles
         draw = ImageDraw.Draw(combined_image)
-        draw.text((60, 40), "Original Image", font=font, fill="black")
-        draw.text((pil_orig.width + 30, 40),
-                  "True Segmentated Image", font=font, fill="black")
-        draw.text((pil_orig.width * 2 + 10, 40),
-                  "Predicted Segmentated Image", font=font, fill="black")
-        draw.text((total_width / 2 - 160, 10), subtitle,
-                  font=subtitlefont, fill="black")  # Centralized subtitle
+        draw.text((60, 40), "Original Img", font=font, fill="black")
+        draw.text((pil_orig.width + gap + 30, 40),
+                  "True Segmentated Img", font=font, fill="black")
+        draw.text((2 * pil_orig.width + 2 * gap + 10, 40),
+                  "Predicted Segmentated Img", font=font, fill="black")
+
+        # Calculating and drawing centred subtitles
+        subtitle_bbox = draw.textbbox((0, 0), subtitle, font=subtitlefont)
+        subtitle_width = subtitle_bbox[2] - subtitle_bbox[0]
+        subtitle_x = (base_image_width - subtitle_width) / 2
+        draw.text((subtitle_x, 15), subtitle, font=subtitlefont, fill="black")
 
         combined_image.show()
 
@@ -107,10 +123,10 @@ def visualize_segmentation_comparison(images:torch.Tensor,
             combined_image.save(save_path_file, 'PNG')
 
 
-def test_visualization(model:nn.Module, loader:DataLoader, mask:torch.Tensor, 
-                       device:torch.device, subtitle:str, save_path:str|None, num_images=3):
+def test_visualization(model: nn.Module, loader: DataLoader, mask: torch.Tensor,
+                       device: torch.device, subtitle: str, save_path: str | None, num_images=3):
     """Visualize segmentation results on test set
-    
+
     Args:
         model (Module): the segmentation model
         loader (DataLoader): the dataloader containing (image, true labels)
