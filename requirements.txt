@@ -1,42 +1,6 @@
-Brotli @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/brotli-split_1699473013692/work
-certifi @ file:///C:/b/abs_35d7n66oz9/croot/certifi_1707229248467/work/certifi
-charset-normalizer @ file:///tmp/build/80754af9/charset-normalizer_1630003229654/work
-contourpy==1.2.1
-cycler==0.12.1
-filelock @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/filelock_1701807523603/work
-fonttools==4.51.0
-idna @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/idna_1699473483982/work
-imageio==2.34.0
 imgaug==0.4.0
-Jinja2 @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/jinja2_1707426091452/work
-kiwisolver==1.4.5
-lazy_loader==0.4
-MarkupSafe @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/markupsafe_1707425732791/work
-matplotlib==3.8.4
-mkl-fft @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/mkl_fft_1699473528480/work
-mkl-random @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/mkl_random_1699473588250/work
-mkl-service==2.4.0
-mpmath @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/mpmath_1699484863771/work
-networkx @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/networkx_1699484973836/work
-numpy @ file:///C:/b/abs_c1ywpu18ar/croot/numpy_and_numpy_base_1708638681471/work/dist/numpy-1.26.4-cp312-cp312-win_amd64.whl#sha256=becc06674317799ad0165a939a7613809d0bee9bd328a1e4308c57c39cacf08c
-opencv-python==4.9.0.80
-packaging==24.0
-pillow @ file:///C:/b/abs_e22m71t0cb/croot/pillow_1707233126420/work
-pyparsing==3.1.2
-PySocks @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/pysocks_1699473336188/work
-python-dateutil==2.9.0.post0
-PyYAML @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/pyyaml_1699479991712/work
-requests @ file:///C:/b/abs_474vaa3x9e/croot/requests_1707355619957/work
-scikit-image==0.23.1
-scipy==1.13.0
-setuptools==68.2.2
-shapely==2.0.3
-six==1.16.0
-sympy @ file:///C:/b/abs_82njkonm7f/croot/sympy_1701397685028/work
-tifffile==2024.2.12
+numpy==1.26.4
+opencv_python==4.9.0.80
+Pillow==10.3.0
 torch==2.2.2
 torchvision==0.17.2
-typing_extensions @ file:///C:/b/abs_23uoivfoy8/croot/typing_extensions_1705619982210/work
-urllib3 @ file:///C:/b/abs_4etpfrkumr/croot/urllib3_1707770616184/work
-wheel==0.41.2
-win-inet-pton @ file:///C:/Users/dev-admin/perseverance-python-buildout/croot/win_inet_pton_1699472992992/work
