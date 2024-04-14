@@ -1,4 +1,5 @@
 import os
+import random
 import torch
 from PIL import Image
 import numpy as np
@@ -9,54 +10,58 @@ from torchvision.transforms import functional as F
 
 class ContDataset(Dataset):
     """
-    Prepare dataset for contrastive learning
+    Prepare dataset for contrastive learning where each augmented image is paired with its original image.
+    The names of the augmented images end with '_left.jpg' or '_right.jpg', and find the corresponding
+    original image by removing these suffixes.
 
     Args:
-      folder_path (string): Path to the folder with augmentated images
-      folder_path1 (string): Path to the folder with images
-      transform (callable, optional): Optional transform to be applied 
-        on a sample.
+      folder_path (string): Path to the folder with augmented images.
+      folder_path1 (string): Path to the folder with original images.
+      transform (callable, optional): Optional transform to be applied on a sample.
     """
 
-    def __init__(self, folder_path:int, folder_path1:int, transform=None):
+    def __init__(self, folder_path: str, folder_path1: str, transform=None):
         self.folder_path = folder_path
         self.folder_path1 = folder_path1
-        self.image_filenames = [f for f in sorted(os.listdir(
-            folder_path)) if os.path.isfile(os.path.join(folder_path, f))]
-        self.image_filenames1 = [f for f in sorted(os.listdir(
-            folder_path1)) if os.path.isfile(os.path.join(folder_path1, f))]
         self.transform = transform
+        self.augmented_filenames = sorted(os.listdir(folder_path))
+        self.original_filenames = sorted(os.listdir(folder_path1))
+
+        # Create a mapping from augmented to original filenames
+        self.mapping = {}
+        for filename in self.augmented_filenames:
+            base_name = filename.replace(
+                '_left.jpg', '').replace('_right.jpg', '')
+            self.mapping[filename] = base_name + '.jpg'
 
     def __len__(self):
-        # Return the total number of image pairs
-        # There is one less pair than the number of images
-        return len(self.image_filenames1) - 1
+        return len(self.augmented_filenames)
 
     def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
+        # Get the filename of the augmented image
+        augmented_filename = self.augmented_filenames[idx]
+        augmented_img_path = os.path.join(self.folder_path, augmented_filename)
+        augmented_image = Image.open(augmented_img_path)
 
-        flag1 = torch.randint(0, 2, (1,))
-        flag2 = torch.randint(0, 2, (1,))
+        # Find the corresponding original image
+        original_filename = self.mapping[augmented_filename]
+        original_img_path = os.path.join(self.folder_path1, original_filename)
+        original_image = Image.open(original_img_path)
 
-        img_name_0 = os.path.join(
-            self.folder_path1, self.image_filenames1[idx]) # original image 
-        img_name_1 = os.path.join(
-            self.folder_path, self.image_filenames[2*idx+flag1.item()]) # the corresponding augmentated image, i.e., positive
-        img_name_2 = os.path.join(
-            self.folder_path, self.image_filenames[2*(idx+1) + flag2.item()]) # anothor augmentated image, i.e. negative
+        # Select a random negative sample that is not the same as the original
+        neg_idx = random.choice([i for i in range(
+            len(self.original_filenames)) if self.original_filenames[i] != original_filename])
+        neg_img_path = os.path.join(
+            self.folder_path1, self.original_filenames[neg_idx])
+        negative_image = Image.open(neg_img_path)
 
-        image_0 = Image.open(img_name_0)
-        image_1 = Image.open(img_name_1)
-        image_2 = Image.open(img_name_2)
-
+        # Apply transformations if any
         if self.transform:
-            image_0 = self.transform(image_0)
-            image_1 = self.transform(image_1)
-            image_2 = self.transform(image_2)
+            augmented_image = self.transform(augmented_image)
+            original_image = self.transform(original_image)
+            negative_image = self.transform(negative_image)
 
-        # No label is provided, just the pair of images
-        return image_0, image_1, image_2
+        return augmented_image, original_image, negative_image
 
 
 class MockContDataset(Dataset):
@@ -69,7 +74,7 @@ class MockContDataset(Dataset):
           on a sample.
     """
 
-    def __init__(self, num_samples:int, image_size:tuple, transform=None):
+    def __init__(self, num_samples: int, image_size: tuple, transform=None):
         self.num_samples = num_samples
         self.image_size = image_size
         self.transform = transform
