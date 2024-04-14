@@ -34,7 +34,7 @@ dataset_config = {
 }
 
 pre_train = {
-    'num_samples': 4000,  # Size of the pre-trained dataset
+    'num_samples': 8000,  # Size of the pre-trained dataset
     'epochs': 10,  # Total epochs for pre-training
     'learning_rate': 1e-3  # Learning rate in the pre-training phase
 }

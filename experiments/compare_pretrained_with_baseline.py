@@ -33,14 +33,14 @@ dataset_config = {
 }
 
 pre_train = {
-    'num_samples': 10000,  # Size of the pre-trained dataset
-    'epochs': 5,  # Total epochs for pre-training
+    'num_samples': 8000,  # Size of the pre-trained dataset
+    'epochs': 10,  # Total epochs for pre-training
     'learning_rate': 1e-3  # Learning rate in the pre-training phase
 }
 
 # Split configurations for fine-tuning
 fine_tune_dataset_split = {
-    'use_data_ratio': 0.2,  # Fine-tuning the use ratio of the dataset
+    'use_data_ratio': 0.1,  # Fine-tuning the use ratio of the dataset
     'train_ratio': 0.8,  # Fine-tuning the scale of the training dataset
     'test_ratio': 0.2,  # Fine-tuning the scale of the test dataset
 }
@@ -50,7 +50,7 @@ fine_tune_training_config = {
     'batch_size': 64,
     'shuffle_train': True,
     'shuffle_test': False,
-    'training_epochs': 5,  # Fine-tuning phase training epochs
+    'training_epochs': 10,  # Fine-tuning phase training epochs
     'learning_rate': 1e-4  # Learning rate in the pre-training phase
 }
 

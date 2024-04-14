@@ -33,7 +33,7 @@ dataset_config = {
 }
 
 pre_train = {
-    'num_samples': 10000,  # Size of the pre-trained dataset
+    'num_samples': 8000,  # Size of the pre-trained dataset
     'epochs': 10,  # Total epochs for pre-training
     'learning_rate': 1e-3  # Learning rate in the pre-training phase
 }
@@ -49,7 +49,7 @@ fine_tune_training_config = {
     'batch_size': 64,
     'shuffle_train': True,
     'shuffle_test': False,
-    'training_epochs': 20,  # Fine-tuning phase training epochs
+    'training_epochs': 10,  # Fine-tuning phase training epochs
     'learning_rate': 1e-4  # Learning rate in the pre-training phase
 }
 
