@@ -51,7 +51,7 @@ fine_tune_training_config = {
     'batch_size': 64,
     'shuffle_train': True,
     'shuffle_test': False,
-    'training_epochs': 10,  # Fine-tuning phase training epochs
+    'training_epochs': 30,  # Fine-tuning phase training epochs
     'learning_rate': 1e-4  # Learning rate in the pre-training phase
 }
 

@@ -1,3 +1,4 @@
+import copy
 import time
 import gc
 import os
@@ -16,12 +17,12 @@ from torch.utils.data import DataLoader
 current_dir = os.getcwd()
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
-from utils import test_visualization
-from data_augmentation import DataAugmentation
-from metrics import pixel_wise_accuracy, evaluate_model_performance
-from losses import contrastive_loss, dice_loss
-from models import Decoder, MaskedAutoEncoder
 from data_utils import ContDataset, Transform
+from models import Decoder, MaskedAutoEncoder
+from losses import contrastive_loss, dice_loss
+from metrics import pixel_wise_accuracy, evaluate_model_performance
+from data_augmentation import DataAugmentation
+from utils import test_visualization
 
 
 # Configuration for datasets
@@ -49,7 +50,7 @@ fine_tune_training_config = {
     'batch_size': 64,
     'shuffle_train': True,
     'shuffle_test': False,
-    'training_epochs': 10,  # Fine-tuning phase training epochs
+    'training_epochs': 20,  # Fine-tuning phase training epochs
     'learning_rate': 1e-4  # Learning rate in the pre-training phase
 }
 
@@ -187,7 +188,8 @@ def fine_tune_model(data_ratio):
                              shuffle=fine_tune_training_config['shuffle_test'], drop_last=True)
 
     mask = torch.ones(size=(1, 3, 224, 224)).to(device)
-    fine_model_with_pre = pre_model.to(device)
+    # Use deepcopy to ensure that the weights of pre_model remain unchanged
+    fine_model_with_pre = copy.deepcopy(pre_model).to(device)
     optimizer = optim.Adam(fine_model_with_pre.parameters(
     ), lr=fine_tune_training_config['learning_rate'])
 
@@ -195,7 +197,9 @@ def fine_tune_model(data_ratio):
     for epoch in range(fine_tune_training_config['training_epochs']):
         start_time = time.time()
         fine_model_with_pre.train()
-        for x, y in train_loader:
+        total_loss = 0.0
+        total_batches = 0
+        for i, (x, y) in enumerate(train_loader):
             inputs, targets = x.to(device), y.to(device)
             optimizer.zero_grad()
             preds = fine_model_with_pre(inputs, mask)
@@ -207,9 +211,17 @@ def fine_tune_model(data_ratio):
                 loss.backward()
                 optimizer.step()
 
+                # Accumulate loss
+                total_loss += loss.item()
+                total_batches += 1
+
+                # Print batch loss
+                # print(f'Epoch {epoch+1}, Batch {i+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}')
+
+        average_loss = total_loss / total_batches if total_batches > 0 else 0
         end_time = time.time()
         epoch_duration = end_time - start_time
-        print(f"Data ratio {data_ratio * 100}%: Epoch {epoch+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}, Duration: {epoch_duration:.2f} seconds")
+        print(f'Epoch {epoch+1} completed, Average Loss: {average_loss:.3f}, Duration: {epoch_duration:.2f} seconds------------------------------------')
 
     # Evaluate the performance
     evaluate_model_performance(fine_model_with_pre, test_loader, device,

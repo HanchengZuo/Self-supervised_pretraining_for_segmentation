@@ -1,3 +1,4 @@
+import copy
 import time
 import gc
 import os
@@ -16,12 +17,12 @@ from torch.utils.data import DataLoader
 current_dir = os.getcwd()
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
-from data_utils import ContDataset, Transform
-from models import Decoder, MaskedAutoEncoder
-from losses import contrastive_loss, dice_loss
-from metrics import pixel_wise_accuracy, evaluate_model_performance
-from data_augmentation import DataAugmentation
 from utils import test_visualization
+from data_augmentation import DataAugmentation
+from metrics import pixel_wise_accuracy, evaluate_model_performance
+from losses import contrastive_loss, dice_loss
+from models import Decoder, MaskedAutoEncoder
+from data_utils import ContDataset, Transform
 
 
 # Configuration for datasets
@@ -50,7 +51,7 @@ fine_tune_training_config = {
     'batch_size': 64,
     'shuffle_train': True,
     'shuffle_test': False,
-    'training_epochs': 10,  # Fine-tuning phase training epochs
+    'training_epochs': 20,  # Fine-tuning phase training epochs
     'learning_rate': 1e-4  # Learning rate in the pre-training phase
 }
 
@@ -186,7 +187,8 @@ evaluate_model_performance(pre_model, test_loader,
 
 # Initialize mask and model for fine-tuning
 mask = torch.ones(size=(1, 3, 224, 224)).to(device)
-fine_model_with_pre = pre_model.to(device)
+# Use deepcopy to ensure that the weights of pre_model remain unchanged
+fine_model_with_pre = copy.deepcopy(pre_model).to(device)
 optimizer = optim.Adam(fine_model_with_pre.parameters(),
                        lr=fine_tune_training_config['learning_rate'])
 
@@ -196,6 +198,8 @@ print("Starting the fine-tuning process with the pre-trained model...")
 for epoch in range(fine_tune_training_config['training_epochs']):
     start_time = time.time()
     fine_model_with_pre.train()  # Ensure the model is in training mode
+    total_loss = 0.0
+    total_batches = 0
     for i, (x, y) in enumerate(train_loader):
         inputs, targets = x.to(device), y.to(device)
         optimizer.zero_grad()
@@ -213,15 +217,21 @@ for epoch in range(fine_tune_training_config['training_epochs']):
             # Backpropagation
             loss.backward()
             optimizer.step()
-            
-            # Print batch loss
-            print(f'Epoch {epoch+1}, Batch {i+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}')
 
+            # Accumulate loss
+            total_loss += loss.item()
+            total_batches += 1
+
+            # Print batch loss
+            print(
+                f'Epoch {epoch+1}, Batch {i+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}')
+
+    average_loss = total_loss / total_batches if total_batches > 0 else 0
     end_time = time.time()
     epoch_duration = end_time - start_time
 
     # Print epoch results
-    print(f'Epoch {epoch+1} completed, Duration: {epoch_duration:.2f} seconds------------------------------------')
+    print(f'Epoch {epoch+1} completed, Average Loss: {average_loss:.3f}, Duration: {epoch_duration:.2f} seconds------------------------------------')
 
 print("Fine-tuning completed.")
 
@@ -257,6 +267,8 @@ print("Starting training of the baseline model without pre-trained weights...")
 for epoch in range(fine_tune_training_config['training_epochs']):
     start_time = time.time()
     fine_model_without_pre.train()  # Ensure the model is in training mode
+    total_loss = 0.0
+    total_batches = 0
     for i, (x, y) in enumerate(train_loader):
         inputs, targets = x.to("cuda"), y.to("cuda")
         optimizer.zero_grad()
@@ -274,15 +286,21 @@ for epoch in range(fine_tune_training_config['training_epochs']):
             # Backpropagation
             loss.backward()
             optimizer.step()
-            
-            # Print batch loss
-            print(f'Epoch {epoch+1}, Batch {i+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}')
 
+            # Accumulate loss
+            total_loss += loss.item()
+            total_batches += 1
+
+            # Print batch loss
+            print(
+                f'Epoch {epoch+1}, Batch {i+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}')
+
+    average_loss = total_loss / total_batches if total_batches > 0 else 0
     end_time = time.time()
     epoch_duration = end_time - start_time
 
     # Print training progress
-    print(f'Epoch {epoch+1} completed, Duration: {epoch_duration:.2f} seconds------------------------------------')
+    print(f'Epoch {epoch+1} completed, Average Loss: {average_loss:.3f}, Duration: {epoch_duration:.2f} seconds------------------------------------')
 
 print("Baseline model without pre-trained weights training completed.")
 
