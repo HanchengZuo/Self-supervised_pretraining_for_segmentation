@@ -41,7 +41,7 @@ pre_train = {
 
 # Split configurations for fine-tuning
 fine_tune_dataset_split = {
-    'use_data_ratio': 1.0,  # Fine-tuning the use ratio of the dataset
+    'use_data_ratio': 0.2,  # Fine-tuning the use ratio of the dataset
     'train_ratio': 0.8,  # Fine-tuning the scale of the training dataset
     'test_ratio': 0.2,  # Fine-tuning the scale of the test dataset
 }
@@ -51,7 +51,7 @@ fine_tune_training_config = {
     'batch_size': 64,
     'shuffle_train': True,
     'shuffle_test': False,
-    'training_epochs': 20,  # Fine-tuning phase training epochs
+    'training_epochs': 10,  # Fine-tuning phase training epochs
     'learning_rate': 1e-4  # Learning rate in the pre-training phase
 }
 
@@ -197,7 +197,7 @@ for epoch in range(fine_tune_training_config['training_epochs']):
     start_time = time.time()
     # Ensure the model is in training mode
     fine_model_with_pre_related_pets.train()
-    for x, y in train_loader:
+    for i, (x, y) in enumerate(train_loader):
         inputs, targets = x.to(device), y.to(device)
         optimizer.zero_grad()
 
@@ -214,12 +214,15 @@ for epoch in range(fine_tune_training_config['training_epochs']):
             # Backpropagation
             loss.backward()
             optimizer.step()
+            
+            # Print batch loss
+            print(f'Epoch {epoch+1}, Batch {i+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}')
 
     end_time = time.time()
     epoch_duration = end_time - start_time
 
     # Print epoch results
-    print(f'Epoch {epoch+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}, Duration: {epoch_duration:.2f} seconds')
+    print(f'Epoch {epoch+1} completed, Duration: {epoch_duration:.2f} seconds------------------------------------')
 
 print("Fine-tuning completed.")
 
@@ -359,12 +362,15 @@ for epoch in range(fine_tune_training_config['training_epochs']):
             # Backpropagation
             loss.backward()
             optimizer.step()
+            
+            # Print batch loss
+            print(f'Epoch {epoch+1}, Batch {i+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}')
 
     end_time = time.time()
     epoch_duration = end_time - start_time
 
     # Print epoch results
-    print(f'Epoch {epoch+1}, Loss: {loss.item():.3f}, Accuracy: {accuracy:.3f}, Duration: {epoch_duration:.2f} seconds')
+    print(f'Epoch {epoch+1} completed, Duration: {epoch_duration:.2f} seconds------------------------------------')
 
 print("Fine-tuning completed.")
 
