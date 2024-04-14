@@ -12,8 +12,8 @@ class ContDataset(Dataset):
     Prepare dataset for contrastive learning
 
     Args:
-      folder_path (string): Path to the folder with images
-      folder_path1 (string): Path to the folder with augmentated images
+      folder_path (string): Path to the folder with augmentated images
+      folder_path1 (string): Path to the folder with images
       transform (callable, optional): Optional transform to be applied 
         on a sample.
     """
@@ -30,17 +30,21 @@ class ContDataset(Dataset):
     def __len__(self):
         # Return the total number of image pairs
         # There is one less pair than the number of images
-        return len(self.image_filenames) - 1
+        return len(self.image_filenames1) - 1
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
+        flag1 = torch.randint(0, 2, (1,))
+        flag2 = torch.randint(0, 2, (1,))
+
         img_name_0 = os.path.join(
             self.folder_path1, self.image_filenames1[idx]) # original image 
-        img_name_1 = os.path.join(self.folder_path, self.image_filenames[idx]) # the corresponding augmentated image, i.e., positive
+        img_name_1 = os.path.join(
+            self.folder_path, self.image_filenames[2*idx+flag1.item()]) # the corresponding augmentated image, i.e., positive
         img_name_2 = os.path.join(
-            self.folder_path, self.image_filenames[idx + 1]) # anothor augmentated image, i.e. negative
+            self.folder_path, self.image_filenames[2*(idx+1) + flag2.item()]) # anothor augmentated image, i.e. negative
 
         image_0 = Image.open(img_name_0)
         image_1 = Image.open(img_name_1)
