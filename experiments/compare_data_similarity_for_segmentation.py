@@ -41,7 +41,7 @@ pre_train = {
 
 # Split configurations for fine-tuning
 fine_tune_dataset_split = {
-    'use_data_ratio': 0.2,  # Fine-tuning the use ratio of the dataset
+    'use_data_ratio': 0.1,  # Fine-tuning the use ratio of the dataset
     'train_ratio': 0.8,  # Fine-tuning the scale of the training dataset
     'test_ratio': 0.2,  # Fine-tuning the scale of the test dataset
 }
@@ -51,7 +51,7 @@ fine_tune_training_config = {
     'batch_size': 64,
     'shuffle_train': True,
     'shuffle_test': False,
-    'training_epochs': 30,  # Fine-tuning phase training epochs
+    'training_epochs': 20,  # Fine-tuning phase training epochs
     'learning_rate': 1e-4  # Learning rate in the pre-training phase
 }
 
@@ -105,7 +105,7 @@ optimizer = optim.Adam(pre_model_related_pets.parameters(),
                        lr=pre_train['learning_rate'])
 mask = torch.rand(size=(1, 3, 224, 224)) > 0.5
 mask = mask.to(device)
-scaler = torch.cuda.amp.GradScaler()
+scaler = torch.cuda.amp.GradScaler() if device.type == 'cuda' else None
 
 
 # Start the pre-training phase
@@ -117,10 +117,10 @@ for epoch in range(pre_train['epochs']):
     epoch_losses = []  # Collect losses for each batch to calculate epoch average
 
     for x, z1, z2 in dataloader:
-        inputs, x1, x2 = x.to("cuda"), z1.to("cuda"), z2.to("cuda")
+        inputs, x1, x2 = x.to(device), z1.to(device), z2.to(device)
         optimizer.zero_grad()
 
-        with torch.cuda.amp.autocast():
+        with torch.cuda.amp.autocast(enabled=device.type == 'cuda'):
             try:
                 p1, p2 = pre_model_related_pets(x1, mask).reshape(
                     64, 3, 224, 224), pre_model_related_pets(x2, mask).reshape(64, 3, 224, 224)
@@ -130,9 +130,13 @@ for epoch in range(pre_train['epochs']):
             except Exception as e:
                 continue  # Skip the backward pass and optimizer step if an error occurred
 
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
+            if scaler:
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                loss.backward()
+                optimizer.step()
 
     # Calculate and print the average loss for the epoch
     epoch_avg_loss = sum(epoch_losses) / \
@@ -288,7 +292,7 @@ optimizer = optim.Adam(
     pre_model_not_related_pets.parameters(), lr=pre_train['learning_rate'])
 mask = torch.rand(size=(1, 3, 224, 224)) > 0.5
 mask = mask.to(device)
-scaler = torch.cuda.amp.GradScaler()
+scaler = torch.cuda.amp.GradScaler() if device.type == 'cuda' else None
 
 
 # Start the pre-training phase
@@ -300,10 +304,10 @@ for epoch in range(pre_train['epochs']):
     epoch_losses = []  # Collect losses for each batch to calculate epoch average
 
     for x, z1, z2 in dataloader:
-        inputs, x1, x2 = x.to("cuda"), z1.to("cuda"), z2.to("cuda")
+        inputs, x1, x2 = x.to(device), z1.to(device), z2.to(device)
         optimizer.zero_grad()
 
-        with torch.cuda.amp.autocast():
+        with torch.cuda.amp.autocast(enabled=device.type == 'cuda'):
             try:
                 p1, p2 = pre_model_not_related_pets(x1, mask).reshape(
                     64, 3, 224, 224), pre_model_not_related_pets(x2, mask).reshape(64, 3, 224, 224)
@@ -313,9 +317,13 @@ for epoch in range(pre_train['epochs']):
             except Exception as e:
                 continue  # Skip the backward pass and optimizer step if an error occurred
 
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
+            if scaler:
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                loss.backward()
+                optimizer.step()
 
     # Calculate and print the average loss for the epoch
     epoch_avg_loss = sum(epoch_losses) / \

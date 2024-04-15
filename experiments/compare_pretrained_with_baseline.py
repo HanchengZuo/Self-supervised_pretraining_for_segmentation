@@ -12,7 +12,6 @@ from torchvision import transforms
 from torchvision.models import vit_b_16
 from torch.utils.data import DataLoader
 
-
 # Custom imports assuming they are in the parent directory
 current_dir = os.getcwd()
 parent_dir = os.path.dirname(current_dir)
@@ -103,7 +102,7 @@ pre_model = MaskedAutoEncoder(encoder, decoder).to(device)
 optimizer = optim.Adam(pre_model.parameters(), lr=pre_train['learning_rate'])
 mask = torch.rand(size=(1, 3, 224, 224)) > 0.5
 mask = mask.to(device)
-scaler = torch.cuda.amp.GradScaler()
+scaler = torch.cuda.amp.GradScaler() if device.type == 'cuda' else None
 
 
 # Start the pre-training phase
@@ -115,10 +114,10 @@ for epoch in range(pre_train['epochs']):
     epoch_losses = []  # Collect losses for each batch to calculate epoch average
 
     for x, z1, z2 in dataloader:
-        inputs, x1, x2 = x.to("cuda"), z1.to("cuda"), z2.to("cuda")
+        inputs, x1, x2 = x.to(device), z1.to(device), z2.to(device)
         optimizer.zero_grad()
 
-        with torch.cuda.amp.autocast():
+        with torch.cuda.amp.autocast(enabled=device.type == 'cuda'):
             try:
                 p1, p2 = pre_model(x1, mask).reshape(64, 3, 224, 224), pre_model(
                     x2, mask).reshape(64, 3, 224, 224)
@@ -128,9 +127,13 @@ for epoch in range(pre_train['epochs']):
             except Exception as e:
                 continue  # Skip the backward pass and optimizer step if an error occurred
 
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
+            if scaler:
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                loss.backward()
+                optimizer.step()
 
     # Calculate and print the average loss for the epoch
     epoch_avg_loss = sum(epoch_losses) / \
@@ -270,7 +273,7 @@ for epoch in range(fine_tune_training_config['training_epochs']):
     total_loss = 0.0
     total_batches = 0
     for i, (x, y) in enumerate(train_loader):
-        inputs, targets = x.to("cuda"), y.to("cuda")
+        inputs, targets = x.to(device), y.to(device)
         optimizer.zero_grad()
 
         # Forward pass
