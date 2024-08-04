@@ -4,19 +4,25 @@ import numpy as np
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from PIL import Image, ImageDraw, ImageFont
+from typing import Tuple
 
 
-def create_segmentation_visual(image: np.ndarray, mask: np.ndarray,
-                               color_background: tuple, color_edge: tuple,
-                               transparency: float):
-    """Create visulization image for segmentation
+def create_segmentation_visual(
+        image: np.ndarray, 
+        mask: np.ndarray,
+        color_background: tuple, 
+        color_edge: tuple,
+        transparency: float
+):
+    """
+    Create visulization image for segmentation
 
     Args:
         image (ndarray): input image
         mask (ndarray): trimap
         color_background (tuple[int]): (B,G,R) color of the background, i.e. mask == 2
         color_edge (tuple[int]): (B,G,R) color of the edge i.e. i.e. mask == 3
-        transparency
+        transparency (float): transparency of display of the edge. 
 
     Returns:
         image (PIL.Image): visualization results
@@ -32,27 +38,29 @@ def create_segmentation_visual(image: np.ndarray, mask: np.ndarray,
     return image
 
 
-def visualize_segmentation_comparison(images: torch.Tensor,
-                                      true_masks: torch.Tensor,
-                                      pred_masks: torch.Tensor,
-                                      num_images: int,
-                                      color_background=(255, 255, 255),
-                                      color_edge=(255, 0, 0),
-                                      transparency=0.75,
-                                      subtitle="Segmentation Comparison",
-                                      save_path=None):
+def visualize_segmentation_comparison(
+        images: torch.Tensor,
+        true_masks: torch.Tensor,
+        pred_masks: torch.Tensor,
+        num_images: int,
+        color_background: Tuple[int, int, int] | None = (255, 255, 255),
+        color_edge: Tuple[int, int, int] | None = (255, 0, 0),
+        transparency: float | None = 0.75,
+        subtitle: str | None = "Segmentation Comparison",
+        save_path: str | None = None
+):
     """Visualize segmentation results
 
     Args:
-        images (Tensor): the input images
-        true_masks (Tensor): true lables, i.e. true trimaps
-        pred_masks (Tensor): predicted lables, i.e. predicted trimaps
-        num_images (int): number of the input images to visualize the segmentation results
-        color_background (tuple[int]): (B,G,R) color of the background, i.e. mask == 2
-        color_edge (tuple[int]): (B,G,R) color of the edge i.e. i.e. mask == 3
-        transparency: the transparency factor for the edge
-        subtitle (str): subtitle the the segmentation visualization
-        save_path (str|None): path to save the visualizetion results. None indicates not saving the resutls
+        images (Tensor): the input images.
+        true_masks (Tensor): true lables, i.e. true trimaps;
+        pred_masks (Tensor): predicted lables, i.e. predicted trimaps.
+        num_images (int): number of the input images to visualize the segmentation results.
+        color_background (tuple[int]): (B,G,R) color of the background, i.e. mask == 2. Default to `(255, 255, 255)`.
+        color_edge (tuple[int]): (B,G,R) color of the edge i.e. i.e. mask == 3. Default to `(255, 0, 0)`.
+        transparency (float): the transparency factor for the edge. Default to `0.75`.
+        subtitle (str): subtitle the the segmentation visualization. Default to `"Segmentation Comparison"`.
+        save_path (str|None): path to save the visualizetion results. None indicates not saving the resutls. Default to `None`.
     """
 
     try:
@@ -123,9 +131,17 @@ def visualize_segmentation_comparison(images: torch.Tensor,
             combined_image.save(save_path_file, 'PNG')
 
 
-def test_visualization(model: nn.Module, loader: DataLoader, mask: torch.Tensor,
-                       device: torch.device, subtitle: str, save_path: str | None, num_images=3):
-    """Visualize segmentation results on test set
+def test_visualization(
+        model: nn.Module, 
+        loader: DataLoader, 
+        mask: torch.Tensor,
+        device: torch.device, 
+        subtitle: str, 
+        save_path: str | None, 
+        num_images: int | None = 3
+):
+    """
+    Visualize segmentation results on test set
 
     Args:
         model (Module): the segmentation model
@@ -133,8 +149,8 @@ def test_visualization(model: nn.Module, loader: DataLoader, mask: torch.Tensor,
         mask (Tensor): the mask applied in the model (MAE model)
         device (device): the device
         subtitle (str): subtitle the the segmentation visualization
-        save_path (str|None): path to save the visualizetion results. None indicates not saving the resutls
-        num_images (int): number of the input images to visualize the segmentation results
+        save_path (str|None): path to save the visualizetion results. None indicates not saving the results.
+        num_images (int): number of the input images to visualize the segmentation results.
     """
 
     model.eval()

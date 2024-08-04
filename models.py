@@ -1,21 +1,18 @@
-import torch
 import torch.nn as nn
-import torch.optim as optim
-from torchvision.models import vit_b_16
-from torchvision.transforms import functional as F
 
 
 class Decoder(nn.Module):
-    """
-    MLP decoder for segmentation task
+    """MLP decoder for segmentation task."""
 
-    Args:
-        latent_dim (int): embedding vector dimension in ViT
-        hidden_dim (int): hidden non-linear dimension
-        output_dim (int): task output dimension
-    """
-
-    def __init__(self, latent_dim:int, hidden_dim:int, output_dim:int):
+    def __init__(self, latent_dim: int, hidden_dim: int, output_dim: int):
+        """
+        Initialize the class.
+        
+        Args:
+            latent_dim (int): embedding vector dimension in ViT.
+            hidden_dim (int): hidden non-linear dimension.
+            output_dim (int): task output dimension.
+        """
         super(Decoder, self).__init__()
 
         self.decoder = nn.Sequential(
@@ -29,15 +26,16 @@ class Decoder(nn.Module):
 
 
 class MaskedAutoEncoder(nn.Module):
-    """
-    Masked autoencoder for segmentation task
+    """Masked autoencoder for segmentation task."""
 
-    Args:
-        encoder (nn.Moudule): embedding vector encoder
-        decoder (nn.Moudule): task output decoder
-    """
+    def __init__(self, encoder: nn.Module, decoder: nn.Module):
+        """
+        Initialize the class.
 
-    def __init__(self, encoder:nn.Module, decoder:nn.Module):
+        Args:
+            encoder (nn.Moudule): embedding vector encoder.
+            decoder (nn.Moudule): task output decoder.
+        """
         super(MaskedAutoEncoder, self).__init__()
         self.encoder = encoder
         self.decoder = decoder

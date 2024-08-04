@@ -6,21 +6,25 @@ import numpy as np
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 from torchvision.transforms import functional as F
+from typing import Callable, Tuple
 
 
 class ContDataset(Dataset):
     """
     Prepare dataset for contrastive learning where each augmented image is paired with its original image.
-    The names of the augmented images end with '_left.jpg' or '_right.jpg', and find the corresponding
+    The names of the augmented images end with `'_left.jpg'` or `'_right.jpg'`, and find the corresponding
     original image by removing these suffixes.
-
-    Args:
-      folder_path (string): Path to the folder with augmented images.
-      folder_path1 (string): Path to the folder with original images.
-      transform (callable, optional): Optional transform to be applied on a sample.
     """
 
-    def __init__(self, folder_path: str, folder_path1: str, transform=None):
+    def __init__(self, folder_path: str, folder_path1: str, transform: Callable | None = None):
+        """
+        Initialize the class.
+        
+        Args:
+            folder_path (string): Path to the folder with augmented images.
+            folder_path1 (string): Path to the folder with original images.
+            transform (callable, optional): Optional transform to be applied on a sample. Default to `None`.
+        """
         self.folder_path = folder_path
         self.folder_path1 = folder_path1
         self.transform = transform
@@ -65,16 +69,17 @@ class ContDataset(Dataset):
 
 
 class MockContDataset(Dataset):
-    """prepare random dataset for contrastive learning
+    """Prepare random dataset for contrastive learning."""
 
-    Args:
-      num_samples (int): Number of samples in the dataset.
-      image_size (tuple[int]): Size of the generated images (height, width).
-      transform (callable, optional): Optional transform to be applied
-          on a sample.
-    """
+    def __init__(self, num_samples: int, image_size: Tuple[int, int], transform: bool | None = None):
+        """
+        Initialize the class.
 
-    def __init__(self, num_samples: int, image_size: tuple, transform=None):
+        Args:
+            num_samples (int): Number of samples in the dataset.
+            image_size (tuple[int, int]): Size of the generated images (height, width).
+            transform (callable, optional): Optional transform to be applied on a sample.
+        """
         self.num_samples = num_samples
         self.image_size = image_size
         self.transform = transform
@@ -103,14 +108,15 @@ class MockContDataset(Dataset):
 
 
 class Transform:
-    """
-    Transform the images and correspounding pixel-wise lables to a pre-defined shape
-
-    Args:
-        image_size (tuple[int]): (width, height) of the output shape
-    """
+    """Transform the images and correspounding pixel-wise lables to a pre-defined shape"""
 
     def __init__(self, image_size=(224, 224)):
+        """
+        Initialize the class.
+
+        Args:
+            image_size (tuple[int]): (width, height) of the output shape
+        """
         self.image_size = image_size
         self.transform = transforms.Compose([
             transforms.Resize(image_size),
@@ -126,16 +132,16 @@ class Transform:
         return img, mask
 
 
-def check_image_shapes(folder_path):
+def check_image_shapes(folder_path: str):
     """
-    check the modes of data
+    Check the modes of data.
 
     Args:
-        folder_path: path of the folder
+        folder_path (str): path of the folder.
 
     Returns:
-        modes: dict with modes as keys and number of files as values
-        filennames: filenmames with the images whose modes are not RGB
+        modes (dict): dict with modes as keys and number of files as values.
+        filenames (list): filenmames with the images whose modes are not RGB.
     """
 
     modes = {}  # record number of images under each mode

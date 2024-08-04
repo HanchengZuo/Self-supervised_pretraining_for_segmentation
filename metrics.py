@@ -4,13 +4,14 @@ from torch.utils.data import DataLoader
 
 
 def pixel_wise_accuracy(pred: torch.Tensor, target: torch.Tensor) -> float:
-    '''calculate pixe-wise accuracy
+    '''
+    Calculate pixe-wise accuracy.
 
     Args:
-        pred: output (logits) of model, (batch_size, num_classes, width,height)
-        target: ground truth, trimap
+        pred (Tensor): output (logits) of model, (batch_size, num_classes, width,height).
+        target (Tensor): ground truth, trimap.
     Returns:
-        accuracy: pixel accuracy
+        accuracy (float): pixel accuracy.
     '''
 
     pred_tri = torch.argmax(pred, axis=1)
@@ -21,14 +22,14 @@ def pixel_wise_accuracy(pred: torch.Tensor, target: torch.Tensor) -> float:
     return accuracy.item()
 
 
-def iou_score(pred: torch.Tensor, target: torch.Tensor, smooth=1e-6):
+def iou_score(pred: torch.Tensor, target: torch.Tensor, smooth: float | None = 1e-6):
     """
     Calculate the Intersection over Union (IoU) score.
 
     Args:
         pred (torch.Tensor): The output of the model. Shape: (batch_size, num_classes, width, height).
         target (torch.Tensor): The ground truth labels for each pixel. Shape: (batch_size, width, height).
-        smooth (float): A small value to prevent division by zero.
+        smooth (float): A small value to prevent division by zero. Default to `1e-6`.
 
     Returns:
         float: The average IoU score across all classes and all batches.
@@ -61,11 +62,13 @@ def iou_score(pred: torch.Tensor, target: torch.Tensor, smooth=1e-6):
     return iou.mean().item()
 
 
-def evaluate_model_performance(model:nn.Module, 
-                               dataloader:DataLoader, 
-                               device:torch.device, 
-                               mask:torch.Tensor, 
-                               model_description:str):
+def evaluate_model_performance(
+        model: nn.Module, 
+        dataloader: DataLoader, 
+        device: torch.device, 
+        mask: torch.Tensor, 
+        model_description: str
+):
     """
     Evaluate the model on given dataloader to compute accuracy and IoU score.
 

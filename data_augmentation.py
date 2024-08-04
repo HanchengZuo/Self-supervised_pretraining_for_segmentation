@@ -4,17 +4,19 @@ import cv2
 import glob
 import shutil
 import imgaug.augmenters as iaa
+import numpy as np
 
 class DataAugmentation:
-    """Initialize the data augmentation class.
+    """Class for data augmentation"""
 
-    Args:
-        original_path (str): The path to the directory containing the original images.
-        augmented_path (str): The path to the directory where augmented images will be saved.
-        num_images (int): Number of images to be processed for augmentation.
-    """
+    def __init__(self, original_path: str, augmented_path: str, num_images: int):
+        """Initialize the class.
 
-    def __init__(self, original_path:str, augmented_path:str, num_images:int):
+        Args:
+            original_path (str): The path to the directory containing the original images.
+            augmented_path (str): The path to the directory where augmented images will be saved.
+            num_images (int): Number of images to be processed for augmentation.
+        """
         self.original_path = original_path
         self.augmented_path = augmented_path
         self.num_images = num_images
@@ -29,8 +31,13 @@ class DataAugmentation:
                      iaa.Dropout(p=(0, 0.2)), iaa.pillike.Autocontrast(),
                      iaa.PadToFixedSize(width=100, height=100)]
 
-    def _clear_directory(self, path:str):
-        """Clears all files in the specified directory."""
+    def _clear_directory(self, path: str):
+        """
+        Clears all files in the specified directory.
+        
+        Args:
+            path (str): path where all files will be cleared.
+        """
 
         for filename in os.listdir(path):
             file_path = os.path.join(path, filename)
@@ -77,14 +84,15 @@ class DataAugmentation:
 
         print("Data Augmentation Done!")
 
-    def _augment_single_image(self, img, h, w, is_right=False):
-        """Apply augmentation to a single image by adding a mask block.
+    def _augment_single_image(self, img: np.ndarray, h: int, w: int, is_right: bool | None = False):
+        """
+        Apply augmentation to a single image by adding a mask block.
 
         Args:
             img (array): The image to be augmented.
             h (int): Height of the image.
             w (int): Width of the image.
-            is_right (bool): Flag to determine whether to augment the right side of the image.
+            is_right (bool): Flag to determine whether to augment the right side of the image. Default to `False`.
 
         Returns:
             array: The augmented image.
@@ -102,8 +110,9 @@ class DataAugmentation:
             augmented_img[bh:bh + size1, bw:bw + size2, :] = 114
         return augmented_img
 
-    def _random_block_params(self, h, w):
-        """Generate random parameters for the block to be added to the image.
+    def _random_block_params(self, h: int, w: int):
+        """
+        Generate random parameters for the block to be added to the image.
 
         Args:
             h (int): Height of the image.

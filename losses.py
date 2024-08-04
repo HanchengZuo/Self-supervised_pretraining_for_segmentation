@@ -4,14 +4,15 @@ import torch.nn.functional as Func
 
 
 class ContrastiveLoss(nn.Module):
-    """
-    Contrastive learing loss
+    """Contrastive learing loss."""
 
-    Args:
-        margin (float): margin for contrastive loss
-    """
-
-    def __init__(self, margin=1.0):
+    def __init__(self, margin: float | None = 1.0):
+        """
+        Initialize the class.
+        
+        Args:
+            margin (float): margin for contrastive loss.
+        """
         super(ContrastiveLoss, self).__init__()
         self.margin = margin
 
@@ -31,17 +32,17 @@ class ContrastiveLoss(nn.Module):
 contrastive_loss = ContrastiveLoss(margin=1.0)
 
 
-def dice_loss(pred: torch.Tensor, target: torch.Tensor, smooth=1.0):
+def dice_loss(pred: torch.Tensor, target: torch.Tensor, smooth: float | None = 1.0):
     '''
-    Calculate dice loss
+    Calculate dice loss.
 
     Args:
-        pred (Tensor): output of model, (batch_size, num_class, width, height)
-        target (Tensor): true prediction for eac pixel, (batch_size, width, height)
-        smooth (float): smooth parameter for dice loss
+        pred (Tensor): output of model, (batch_size, num_class, width, height).
+        target (Tensor): true prediction for eac pixel, (batch_size, width, height).
+        smooth (float): smooth parameter for dice loss. Default to `1.0`.
 
     Return:
-        dice_loss (float): dice loss
+        dice_loss (float): dice loss.
     '''
 
     _, num_classes, _, _ = pred.shape
