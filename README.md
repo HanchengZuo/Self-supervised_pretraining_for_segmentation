@@ -135,7 +135,7 @@ This folder contains the experiments in this project, in both python scripts and
 
 **[Fine-tuning-data](https://www.robots.ox.ac.uk/%7Evgg/data/pets/)**: This `Oxford-IIIT Pet Dataset` data for fine-tuning across different experiments. This doesn't need to be manually downloaded, since this is handled in the code.
 
-**[Pre-training-data-relevant](https://drive.google.com/file/d/1–AAWSQTVH5opJy9vIfGxLaUdpAPB4If/view?usp=sharing)**: This dataset contains augmented pets-related data. This needs to be mannally downloaded to `datasets/data`. We use this data during pre-training. The [original-data](https://drive.google.com/file/d/1QHC18el6TemZBouOXOumJ-WEivq4blxN/view?usp=sharing), i.e., data before augmentation, is also available.
+**[Pre-training-data-relevant](https://drive.google.com/file/d/1QHC18el6TemZBouOXOumJ-WEivq4blxN/view?usp=sharing)**: This dataset contains pets-related data. This needs to be mannally downloaded to `datasets/data`. We use this data during pre-training. The [augmented-data](https://drive.google.com/file/d/1–AAWSQTVH5opJy9vIfGxLaUdpAPB4If/view?usp=sharing), i.e., data after augmentation, is also available.
 
 **[Pre-training-data-irrelevant](https://www.robots.ox.ac.uk/vgg/data/flowers/102/102flowers.tgz)**: This dataset contains flower images. This needs to be mannally downloaded to `datasets/102flowers`.
 
@@ -208,8 +208,6 @@ The purpose of this experiment is to compare the pre-text pre-training -> segmen
 
 ##  Acknowledgments
 
-- List any resources, contributors, inspiration, etc. here.
-
-[**Return**](#-overview)
+Thanks all the 8 members of our team.
 
 ---
