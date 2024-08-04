@@ -91,13 +91,13 @@ This folder contains the experiments in this project, in both python scripts and
 
 | File                                 | Summary |
 | ---                                  | --- |
-| [compare_data_similarity_for_segmentation.ipynb](experiments\compare_data_similarity_for_segmentation.ipynb)                                                                             | This notebook contains the code to explore how similar the pre-training and fine-tuning data need to be for better segmentation performance, as well as the results. |
-| [compare_data_similarity_for_segmentation.py](experiments\compare_data_similarity_for_segmentation.py)                                                                                   | This python script contains the code to explore how similar the pre-training and fine-tuning data need to be for better segmentation performance. |
-| [compare_pretrained_model_finetuning_sizes.ipynb](experiments\compare_pretrained_model_finetuning_sizes.ipynb)                                                                           | This notebook contains the code to explore the effects of the fine-tuning data sized on the segmentation performance, as well as the results. |
-| [compare_pretrained_model_finetuning_sizes.py](experiments\compare_pretrained_model_finetuning_sizes.py)                                                                                 | This python script contains the code to explore the effects of the fine-tuning data sizes on the segmentation performance. |
-| [compare_pretrained_with_baseline_transfer.ipynb](experiments\compare_pretrained_with_baseline_transfer.ipynb) | This notebook contains code to compare the pre-text pre-training -> segmentation fine-tuning model with the model using fully supervised methods. Additionally, the pre-trained weights of `vit_b_16` downloaded from pytorch is directly used. In other words, pre-training is not down in this experiment. |
-| [compare_pretrained_with_baseline.ipynb](experiments\compare_pretrained_with_baseline.ipynb)                                                                                             | This notebook contains code to compare the pre-text pre-training -> segmentation fine-tuning model with the model using fully supervised methods, as well as the results.  |
-| [compare_pretrained_with_baseline.py](experiments\compare_pretrained_with_baseline.py)                                                                                                   | This python script contains code to compare the pre-text pre-training -> segmentation fine-tuning model with the model using fully supervised methods. |
+| [compare_data_similarity_for_segmentation.ipynb](experiments/compare_data_similarity_for_segmentation.ipynb)                                                                             | This notebook contains the code to explore how similar the pre-training and fine-tuning data need to be for better segmentation performance, as well as the results. |
+| [compare_data_similarity_for_segmentation.py](experiments/compare_data_similarity_for_segmentation.py)                                                                                   | This python script contains the code to explore how similar the pre-training and fine-tuning data need to be for better segmentation performance. |
+| [compare_pretrained_model_finetuning_sizes.ipynb](experiments/compare_pretrained_model_finetuning_sizes.ipynb)                                                                           | This notebook contains the code to explore the effects of the fine-tuning data sized on the segmentation performance, as well as the results. |
+| [compare_pretrained_model_finetuning_sizes.py](experiments/compare_pretrained_model_finetuning_sizes.py)                                                                                 | This python script contains the code to explore the effects of the fine-tuning data sizes on the segmentation performance. |
+| [compare_pretrained_with_baseline_transfer.ipynb](experiments/compare_pretrained_with_baseline_transfer.ipynb) | This notebook contains code to compare the pre-text pre-training -> segmentation fine-tuning model with the model using fully supervised methods. Additionally, the pre-trained weights of `vit_b_16` downloaded from pytorch is directly used. In other words, pre-training is not down in this experiment. |
+| [compare_pretrained_with_baseline.ipynb](experiments/compare_pretrained_with_baseline.ipynb)                                                                                             | This notebook contains code to compare the pre-text pre-training -> segmentation fine-tuning model with the model using fully supervised methods, as well as the results.  |
+| [compare_pretrained_with_baseline.py](experiments/compare_pretrained_with_baseline.py)                                                                                                   | This python script contains code to compare the pre-text pre-training -> segmentation fine-tuning model with the model using fully supervised methods. |
 
 </details>
 
@@ -154,13 +154,13 @@ fine-tuning data need to be for better segmentation performance. All of the thre
 >
 > Run the command below:
 > ```console
-> $ python experiments\compare_data_similarity_for_segmentation.py
+> $ python experiments/compare_data_similarity_for_segmentation.py
 > ```
-> The visualization results will be stored in `Images\compare_data_similarity_for_segmentation`
+> The visualization results will be stored in `Images/compare_data_similarity_for_segmentation`
 
 > Use Jupyter Notebook
 > 
-> Run the cells in [experiments\compare_data_similarity_for_segmentation.ipynb](experiments\compare_data_similarity_for_segmentation.ipynb)
+> Run the cells in [experiments/compare_data_similarity_for_segmentation.ipynb](experiments/compare_data_similarity_for_segmentation.ipynb)
 >
 > All the results will be shown in the notebook.
 
@@ -174,13 +174,13 @@ The purpose of this experiment is to explore the effects of the fine-tuning data
 >
 > Run the command below:
 > ```console
-> $ python experiments\compare_pretrained_model_finetuning_sizes.py
+> $ python experiments/compare_pretrained_model_finetuning_sizes.py
 > ```
-> The visualization results will be stored in `Images\compare_pretrained_model_finetuning_sizes`
+> The visualization results will be stored in `Images/compare_pretrained_model_finetuning_sizes`
 
 > Use Jupyter Notebook
 > 
-> Run the cells in [experiments\compare_pretrained_model_finetuning_sizes.ipynb](experiments\compare_pretrained_model_finetuning_sizes.ipynb)
+> Run the cells in [experiments/compare_pretrained_model_finetuning_sizes.ipynb](experiments/compare_pretrained_model_finetuning_sizes.ipynb)
 >
 > All the results will be shown in the notebook.
 
@@ -194,13 +194,13 @@ The purpose of this experiment is to compare the pre-text pre-training -> segmen
 >
 > Run the command below:
 > ```console
-> $ python experiments\compare_pretrained_with_baseline.py
+> $ python experiments/compare_pretrained_with_baseline.py
 > ```
-> The visualization results will be stored in `Images\compare_pretrained_with_baseline`
+> The visualization results will be stored in `Images/compare_pretrained_with_baseline`
 
 > Use Jupyter Notebook
 > 
-> Run the cells in [experiments\compare_pretrained_with_baseline.ipynb](experiments\compare_pretrained_with_baseline.ipynb)
+> Run the cells in [experiments/compare_pretrained_with_baseline.ipynb](experiments/compare_pretrained_with_baseline.ipynb)
 >
 > All the results will be shown in the notebook.
 
